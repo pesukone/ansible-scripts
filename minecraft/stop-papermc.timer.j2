@@ -1,0 +1,9 @@
+[Unit]
+Description=Stop papermc at 22:00
+
+[Timer]
+OnCalendar=22:00:00
+Persistent=True
+
+[Install]
+WantedBy=timers.target

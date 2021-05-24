@@ -1,0 +1,29 @@
+---
+- name: Start papermc
+  hosts: debian
+  tasks:
+    - name: Install java
+      become: yes
+      ansible.builtin.apt:
+        name: default-jre
+
+    - name: Start and enable papermc timers
+      become: yes
+      block:
+        - name: Run daemon reload
+          ansible.builtin.systemd:
+            daemon_reload: yes
+        - name: Start papermc.timer
+          ansible.builtin.systemd:
+            name: papermc.timer
+            state: started
+            enabled: yes
+        - name: Start stop-papermc.timer
+          ansible.builtin.systemd:
+            name: stop-papermc.timer
+            state: started
+            enabled: yes
+        - name: Start papermc.service
+          ansible.builtin.systemd:
+            name: papermc
+            state: started

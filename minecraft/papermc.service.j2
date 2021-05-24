@@ -1,0 +1,13 @@
+[Unit]
+Description=Service for starting papermc server
+After=local-fs.target network.target multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/{{ user }}/minecraft
+ExecStart=/usr/bin/java -Xms4G -Xmx4G -jar /home/{{ user }}/minecraft/paperclip.jar --nogui
+ExecStop=/bin/kill -15 $MAINPID
+User={{ user }}
+
+[Install]
+WantedBy=multi-user.target

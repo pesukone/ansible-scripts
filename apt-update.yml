@@ -1,0 +1,12 @@
+---
+- name: apt update & upgrade, then reboot
+  become: yes
+  hosts: debian
+
+  tasks:
+    - name: apt update
+      apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+    - name: apt upgrade
+      apt: upgrade=dist force_apt_get=yes
+    - name: reboot
+      reboot:

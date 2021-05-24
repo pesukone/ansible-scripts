@@ -1,0 +1,91 @@
+---
+- name: Setup borgmatic
+  hosts: debian
+  tasks:
+    - name: Install borgmatic
+      become: yes
+      ansible.builtin.apt:
+        name: borgmatic
+
+- name: Create directory /etc/borgmatic.d
+  hosts: debian
+  become: yes
+  tasks:
+    - name: Create directory
+      ansible.builtin.file:
+        state: directory
+        path: /etc/borgmatic.d
+        mode: 0755
+
+- name: Install systemd unit files
+  hosts: debian
+  become: yes
+  tasks:
+    - name: Copy service file
+      ansible.builtin.template:
+        src: '{{ playbook_dir }}/borgmatic.service.j2'
+        dest: '/etc/systemd/system/borgmatic.service'
+        mode: 0755
+    - name: Copy timer file
+      ansible.builtin.template:
+        src: '{{ playbook_dir }}/borgmatic.timer.j2'
+        dest: '/etc/systemd/system/borgmatic.timer'
+        mode: 0755
+
+#- name: Backup papermc to remote machine
+#  hosts: debian
+#  become: yes
+#  vars:
+#    backup_server: !vault |
+#          $ANSIBLE_VAULT;1.1;AES256
+#          32623261653962646235383466383063623166633530366135386338653338366565373932386531
+#          3564333762313364656665633632623531323364613561610a383464353636323262303535393433
+#          62336364623861623934393338393661373364333864306534633964353030373133346166303239
+#          6436346133386531620a653138633237363537633435366232383635663764336362336236303061
+#    backup_server_user: !vault |
+#          $ANSIBLE_VAULT;1.1;AES256
+#          31316163393335336462613561613735353732616564313061303733656561373731383861383132
+#          6335623262346263356266666662643334343062366164650a303363613739656166626561663363
+#          38636664353134313265373632373962653565613064346665396261336536326430626465343235
+#          6439343131343739650a643563653631636566343362663465336537336166326362313739363963
+#          6563
+#    backup_server_directory: ~/Games/levyt/backup
+#    directories:
+#      - "/home/{{ ansible_user }}/minecraft/world"
+#      - "/home/{{ ansible_user }}/minecraft/world_nether"
+#      - "/home/{{ ansible_user }}/minecraft/world_the_end"
+#  tasks:
+#    - name: Push backup config to server
+#      ansible.builtin.template:
+#        src: '{{ playbook_dir }}/borgmatic-remote-config.j2'
+#        dest: '/etc/borgmatic.d/papermc-remote-backup.yaml'
+#        mode: 0664
+
+- name: Backup papermc to local machine
+  hosts: debian
+  become: yes
+  vars:
+    backup_server: "localhost"
+    backup_server_user: "{{ ansible_user }}"
+    backup_server_directory: "/home/{{ ansible_user }}/pool/borg"
+    directories:
+      - "/home/{{ ansible_user }}/minecraft/world"
+      - "/home/{{ ansible_user }}/minecraft/world_nether"
+      - "/home/{{ ansible_user }}/minecraft/world_the_end"
+  tasks:
+    - name: Push backup config to server
+      ansible.builtin.template:
+        src: '{{ playbook_dir }}/borgmatic-local-config.j2'
+        dest: '/etc/borgmatic.d/papermc-local-backup.yaml'
+        mode: 0664
+    - name: Start borgmatic timer
+      become: yes
+      block:
+        - name: Run daemon reload
+          ansible.builtin.systemd:
+            daemon_reload: yes
+        - name: Start borgmatic timer
+          ansible.builtin.systemd:
+            name: borgmatic.timer
+            state: started
+            enabled: yes

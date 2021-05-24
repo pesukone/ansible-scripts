@@ -1,0 +1,50 @@
+---
+- name: Build papermc
+  hosts: localhost
+  tasks:
+    - name: Clone repo
+      ansible.builtin.git:
+        repo: 'https://github.com/PaperMC/Paper'
+        dest: ~/Builds/papermc
+        force: yes
+
+    - name: Build jar
+      ansible.builtin.shell:
+        cmd: ./paper jar
+        chdir: ~/Builds/papermc
+        executable: /bin/bash
+        creates: ~/Builds/papermc/paperclip.jar
+
+- name: Install papermc
+  hosts: debian
+  vars:
+    user: "{{ ansible_user }}"
+  tasks:
+    - name: Copy jar
+      ansible.builtin.copy:
+        src: ~/Builds/papermc/paperclip.jar
+        dest: ~/minecraft/
+
+    - name: Install systemd unit file
+      become: yes
+      block:
+        - name: Copy start service
+          ansible.builtin.template:
+            src: '{{ playbook_dir }}/papermc.service.j2'
+            dest: '/etc/systemd/system/papermc.service'
+            mode: 0755
+        - name: Copy start timer
+          ansible.builtin.template:
+            src: '{{ playbook_dir }}/papermc.timer.j2'
+            dest: '/etc/systemd/system/papermc.timer'
+            mode: 0755
+        - name: Copy stop service
+          ansible.builtin.template:
+            src: '{{ playbook_dir }}/stop-papermc.service.j2'
+            dest: '/etc/systemd/system/stop-papermc.service'
+            mode: 0755
+        - name: Copy stop timer
+          ansible.builtin.template:
+            src: '{{ playbook_dir }}/stop-papermc.timer.j2'
+            dest: '/etc/systemd/system/stop-papermc.timer'
+            mode: 0755

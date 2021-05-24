@@ -1,0 +1,17 @@
+#jinja2: lstrip_blocks: True
+location:
+  source_directories:
+    {% for dir in directories %}
+      - {{ dir }}
+    {% endfor %}
+  repositories:
+    - '{{ backup_server_user }}@{{ backup_server }}:{{ backup_server_directory }}'
+storage:
+  compression: zstd
+retention:
+  keep_within: 12H
+  keep_daily: 7
+  keep_weekly: 12
+hooks:
+  before_backup:
+    - ping -q -c 1 {{ backup_server }} > /dev/null || exit 75
