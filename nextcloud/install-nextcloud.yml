@@ -1,0 +1,54 @@
+---
+- name: install nextcloud
+  hosts: debian
+  vars_prompt:
+    - name: db_root_password
+      prompt: Database root password
+    - name: admin_user_password
+      prompt: Admin user password
+
+  tasks:
+    - name: extract archive
+      become: yes
+      ansible.builtin.unarchive:
+        remote_src: yes
+        src: https://download.nextcloud.com/server/releases/nextcloud-21.0.2.zip
+        dest: /var/www/html/
+        owner: www-data
+        group: www-data
+
+    - name: create database user
+      become: yes
+      community.mysql.mysql_user:
+        login_user: root
+        login_password: "{{ db_root_password }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        name: oc_admin
+        password: "{{ admin_user_password }}"
+        state: present
+
+    - name: create database
+      become: yes
+      community.mysql.mysql_db:
+        login_user: root
+        login_password: "{{ db_root_password }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        name: nextcloud
+        encoding: utf8mb4
+        collation: utf8mb4_general_ci
+        state: present
+
+    - name: grant privileges to user
+      become: yes
+      community.mysql.mysql_user:
+        login_user: root
+        login_password: "{{ db_root_password }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+        name: oc_admin
+        password: "{{ admin_user_password }}"
+        priv: 'nextcloud.*:ALL'
+        state: present
+
+    - name: reboot
+      become: yes
+      reboot:

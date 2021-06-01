@@ -1,0 +1,36 @@
+---
+- name: install php
+  hosts: debian
+
+  tasks:
+    - name: install php and modules
+      become: yes
+      ansible.builtin.apt:
+        update_cache: yes
+        name:
+          - php
+          - php-common
+          - php-curl
+          - php-gd
+          - php-json
+          - php-xml
+          - php-mbstring
+          - php-zip
+          - php-pdo-mysql
+          - php-bz2
+          - php-intl
+          - php-ldap
+          - php-smbclient
+          - php-imap
+          - php-bcmath
+          - php-gmp
+          - php-apcu
+          - php-imagick
+          - ffmpeg
+          - libreoffice
+
+    - name: restart lighttpd
+      become: yes
+      ansible.builtin.service:
+        name: lighttpd
+        state: restarted
