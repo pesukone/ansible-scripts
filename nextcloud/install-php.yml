@@ -9,6 +9,7 @@
         update_cache: yes
         name:
           - php
+          - php-fpm
           - php-common
           - php-curl
           - php-gd
@@ -28,9 +29,3 @@
           - php-imagick
           - ffmpeg
           - libreoffice
-
-    - name: restart lighttpd
-      become: yes
-      ansible.builtin.service:
-        name: lighttpd
-        state: restarted

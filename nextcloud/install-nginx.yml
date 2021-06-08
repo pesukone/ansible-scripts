@@ -1,0 +1,35 @@
+---
+- name: install nginx
+  hosts: debian
+
+  tasks:
+    - name: install nginx
+      become: yes
+      ansible.builtin.apt:
+        update_cache: yes
+        name: nginx-full
+
+    - name: copy nginx.conf to server
+      become: yes
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../nginx/conf/nginx.conf"
+        dest: /etc/nginx/nginx.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: copy sites-available/default to server
+      become: yes
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../nginx/conf/sites-available/default"
+        dest: /etc/nginx/sites-available/default
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: start nginx
+      become: yes
+      ansible.builtin.service:
+        name: nginx
+        enabled: true
+        state: started
