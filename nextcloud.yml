@@ -1,5 +1,6 @@
 ---
 - import_playbook: nextcloud/install-mariadb.yml
-- import_playbook: nextcloud/install-nginx.yml
+- import_playbook: nextcloud/install-apache.yml
+#- import_playbook: nextcloud/install-nginx.yml
 - import_playbook: nextcloud/install-php.yml
 - import_playbook: nextcloud/install-nextcloud.yml

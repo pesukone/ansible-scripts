@@ -8,6 +8,12 @@
       prompt: Admin user password
 
   tasks:
+    - name: install unzip
+      become: yes
+      ansible.builtin.apt:
+        name: unzip
+        state: present
+
     - name: create /var/www/html/nextcloud/
       become: yes
       ansible.builtin.file:
@@ -21,7 +27,7 @@
       become: yes
       ansible.builtin.unarchive:
         remote_src: yes
-        src: https://download.nextcloud.com/server/releases/nextcloud-21.0.2.zip
+        src: https://download.nextcloud.com/server/releases/latest-22.zip
         dest: /var/www/html/
         owner: www-data
         group: www-data
@@ -57,24 +63,6 @@
         password: "{{ admin_user_password }}"
         priv: 'nextcloud.*:ALL'
         state: present
-
-    - name: copy nginx config
-      become: yes
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/../nginx/conf/sites-available/nextcloud"
-        dest: /etc/nginx/sites-available/nextcloud
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: enable nginx config
-      become: yes
-      ansible.builtin.file:
-        src: /etc/nginx/sites-available/nextcloud
-        dest: /etc/nginx/sites-enabled/nextcloud
-        owner: root
-        group: root
-        state: link
 
     - name: reboot
       become: yes

@@ -27,6 +27,24 @@
         group: root
         mode: '0644'
 
+    - name: copy nextcloud.conf to server
+      become: yes
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../nginx/conf/sites-available/nextcloud"
+        dest: /etc/nginx/sites-available/nextcloud
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: enable nginx config
+      become: yes
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/nextcloud
+        dest: /etc/nginx/sites-enabled/nextcloud
+        owner: root
+        group: root
+        state: link
+
     - name: start nginx
       become: yes
       ansible.builtin.service:
