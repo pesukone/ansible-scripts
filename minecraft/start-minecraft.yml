@@ -1,0 +1,29 @@
+---
+- name: Start minecraft server
+  hosts: debian
+  tasks:
+    - name: Install java
+      become: yes
+      ansible.builtin.apt:
+        name: default-jre
+
+    - name: Start and enable minecraft timers
+      become: yes
+      block:
+        - name: Run daemon reload
+          ansible.builtin.systemd:
+            daemon_reload: yes
+        - name: Start minecraft.timer
+          ansible.builtin.systemd:
+            name: minecraft.timer
+            state: started
+            enabled: yes
+        - name: Start stop-minecraft.timer
+          ansible.builtin.systemd:
+            name: stop-minecraft.timer
+            state: started
+            enabled: yes
+        - name: Start minecraft.service
+          ansible.builtin.systemd:
+            name: minecraft
+            state: started

@@ -1,29 +1,13 @@
 ---
-- name: Build papermc
-  hosts: localhost
-  tasks:
-    - name: Clone repo
-      ansible.builtin.git:
-        repo: 'https://github.com/PaperMC/Paper'
-        dest: ~/Builds/papermc
-        force: yes
-
-    - name: Build jar
-      ansible.builtin.shell:
-        cmd: ./paper jar
-        chdir: ~/Builds/papermc
-        executable: /bin/bash
-        creates: ~/Builds/papermc/paperclip.jar
-
 - name: Install papermc
   hosts: debian
   vars:
     user: "{{ ansible_user }}"
   tasks:
-    - name: Copy jar
-      ansible.builtin.copy:
-        src: ~/Builds/papermc/paperclip.jar
-        dest: ~/minecraft/
+    - name: Download jar
+      ansible.builtin.get_url:
+        url: https://papermc.io/api/v2/projects/paper/versions/1.17.1/builds/186/downloads/paper-1.17.1-186.jar
+        dest: ~/minecraft/paperclip.jar
 
     - name: Install systemd unit file
       become: yes

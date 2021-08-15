@@ -1,0 +1,34 @@
+---
+- name: Install server
+  hosts: debian
+  vars:
+    user: "{{ ansible_user }}"
+  tasks:
+    - name: Download jar
+      ansible.builtin.get_url:
+        url: https://launcher.mojang.com/v1/objects/a16d67e5807f57fc4e550299cf20226194497dc2/server.jar
+        dest: ~/minecraft/server.jar
+
+    - name: Install systemd unit file
+      become: yes
+      block:
+        - name: Copy start service
+          ansible.builtin.template:
+            src: '{{ playbook_dir }}/minecraft.service.j2'
+            dest: '/etc/systemd/system/minecraft.service'
+            mode: 0755
+        - name: Copy start timer
+          ansible.builtin.template:
+            src: '{{ playbook_dir }}/minecraft.timer.j2'
+            dest: '/etc/systemd/system/minecraft.timer'
+            mode: 0755
+        - name: Copy stop service
+          ansible.builtin.template:
+            src: '{{ playbook_dir }}/stop-minecraft.service.j2'
+            dest: '/etc/systemd/system/stop-minecraft.service'
+            mode: 0755
+        - name: Copy stop timer
+          ansible.builtin.template:
+            src: '{{ playbook_dir }}/stop-minecraft.timer.j2'
+            dest: '/etc/systemd/system/stop-minecraft.timer'
+            mode: 0755
