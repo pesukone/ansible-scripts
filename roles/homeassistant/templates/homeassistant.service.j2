@@ -1,0 +1,12 @@
+[Unit]
+Description=Service for running homeassistant from python virtual environment
+After=local-fs.target network.target multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/homeassistant
+ExecStart=/srv/homeassistant/bin/python /srv/homeassistant/bin/hass
+User=homeassistant
+
+[Install]
+WantedBy=multi-user.target

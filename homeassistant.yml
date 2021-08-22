@@ -1,0 +1,5 @@
+---
+- name: Install Home Assistant
+  hosts: debian
+  roles:
+    - role: 'roles/homeassistant'
