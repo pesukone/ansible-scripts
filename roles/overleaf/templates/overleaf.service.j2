@@ -1,0 +1,13 @@
+[Unit]
+Description=Service for Overleaf
+After=local-fs.target network.target multi-user.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/{{ user }}/overleaf
+ExecStart=/home/{{ user }}/overleaf/bin/up
+ExecStop=/home/{{ user }}/overleaf/bin/down
+User={{ user }}
+
+[Install]
+WantedBy=multi-user.target

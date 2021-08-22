@@ -1,0 +1,30 @@
+- name: Install git
+  become: yes
+  ansible.builtin.apt:
+    name:
+      - git
+
+- name: Clone repo
+  ansible.builtin.git:
+    repo: 'https://github.com/overleaf/toolkit.git'
+    dest: ~/overleaf
+
+- name: Run init
+  ignore_errors: yes
+  ansible.builtin.shell:
+    chdir: ~/overleaf
+    cmd: bin/init
+
+- name: Install systemd unit file
+  become: yes
+  ansible.builtin.template:
+    src: overleaf.service.j2
+    dest: '/etc/systemd/system/overleaf.service'
+    mode: 0755
+
+- name: Start and enable systemd service
+  become: yes
+  ansible.builtin.service:
+    name: overleaf
+    state: started
+    enabled: yes

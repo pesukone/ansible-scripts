@@ -1,0 +1,5 @@
+---
+- name: Install overleaf
+  hosts: debian
+  roles:
+    - role: 'roles/overleaf'
