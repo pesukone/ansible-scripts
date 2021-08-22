@@ -2,49 +2,7 @@
 - name: install mariadb
   hosts: debian
   vars_prompt:
-    - name: db_root_password
-      prompt: Database root password
-    - name: db_user_password
-      prompt: Database user password
-
-  tasks:
-    - name: install mariadb
-      become: yes
-      ansible.builtin.apt:
-        update_cache: yes
-        name:
-          - mariadb-server
-          - python3-pymysql
-          - python3-pexpect
-
-    - name: start mariadb
-      become: yes
-      ansible.builtin.service:
-        name: mariadb
-        enabled: true
-        state: started
-
-    - name: run mysql_secure_installation
-      become: yes
-      ansible.builtin.expect:
-        command: mysql_secure_installation
-        responses:
-          Enter current password for root: ''
-          Set root password: y
-          New password: "{{ db_root_password }}"
-          Re-enter new password: "{{ db_root_password }}"
-          Remove anonymous users: y
-          Disallow root login remotely: y
-          Remove test database: y
-          Reload privilege tables: y
-
-    - name: create user
-      become: yes
-      community.mysql.mysql_user:
-        login_user: root
-        login_password: "{{ db_root_password }}"
-        login_unix_socket: /var/run/mysqld/mysqld.sock
-        name: "{{ ansible_user }}"
-        password: "{{ db_user_password }}"
-        priv: '*.*:ALL'
-        state: present
+    #- name: db_user_password
+    #  prompt: Database user password
+  roles:
+    - role: '../roles/mariadb'

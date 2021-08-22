@@ -1,16 +1,10 @@
 ---
 - name: install apache
   hosts: debian
+  roles:
+    - role: '../roles/apache'
 
   tasks:
-    - name: install apache
-      become: yes
-      ansible.builtin.apt:
-        update_cache: yes
-        name:
-          - apache2
-          - libapache2-mod-php
-
     - name: copy nextcloud.conf
       become: yes
       ansible.builtin.copy:
@@ -53,10 +47,3 @@
       ansible.builtin.lineinfile:
         path: /etc/apache2/envvars
         line: 'export LD_PRELOAD="libgomp.so.1:${LD_PRELOAD}"'
-
-    - name: start apache
-      become: yes
-      ansible.builtin.service:
-        name: apache2
-        enabled: true
-        state: started

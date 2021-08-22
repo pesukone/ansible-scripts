@@ -1,0 +1,14 @@
+- name: install apache
+  become: yes
+  ansible.builtin.apt:
+    update_cache: yes
+    name:
+      - apache2
+      - libapache2-mod-php
+
+- name: start apache
+  become: yes
+  ansible.builtin.service:
+    name: apache2
+    enabled: true
+    state: started

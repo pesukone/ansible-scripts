@@ -2,8 +2,6 @@
 - name: install nextcloud
   hosts: debian
   vars_prompt:
-    - name: db_root_password
-      prompt: Database root password
     - name: admin_user_password
       prompt: Admin user password
 
@@ -36,7 +34,6 @@
       become: yes
       community.mysql.mysql_user:
         login_user: root
-        login_password: "{{ db_root_password }}"
         login_unix_socket: /var/run/mysqld/mysqld.sock
         name: oc_admin
         password: "{{ admin_user_password }}"
@@ -46,7 +43,6 @@
       become: yes
       community.mysql.mysql_db:
         login_user: root
-        login_password: "{{ db_root_password }}"
         login_unix_socket: /var/run/mysqld/mysqld.sock
         name: nextcloud
         encoding: utf8mb4
@@ -57,7 +53,6 @@
       become: yes
       community.mysql.mysql_user:
         login_user: root
-        login_password: "{{ db_root_password }}"
         login_unix_socket: /var/run/mysqld/mysqld.sock
         name: oc_admin
         password: "{{ admin_user_password }}"

@@ -21,7 +21,6 @@
           - php-bz2
           - php-intl
           - php-ldap
-          - php-smbclient
           - php-imap
           - php-bcmath
           - php-gmp
