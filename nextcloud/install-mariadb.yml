@@ -1,8 +1,0 @@
----
-- name: install mariadb
-  hosts: debian
-  vars_prompt:
-    #- name: db_user_password
-    #  prompt: Database user password
-  roles:
-    - role: '../roles/mariadb'

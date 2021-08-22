@@ -1,0 +1,24 @@
+- name: install php and modules
+  become: yes
+  ansible.builtin.apt:
+    update_cache: yes
+    name:
+      - php
+      - php-fpm
+      - php-common
+      - php-curl
+      - php-gd
+      - php-json
+      - php-xml
+      - php-mbstring
+      - php-zip
+      - php-pdo-mysql
+      - php-bz2
+      - php-intl
+      - php-ldap
+      - php-imap
+      - php-bcmath
+      - php-gmp
+      - php-apcu
+      - php-imagick
+

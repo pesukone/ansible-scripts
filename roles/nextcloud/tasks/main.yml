@@ -1,0 +1,88 @@
+- name: install dependencies
+  become: yes
+  ansible.builtin.apt:
+    state: present
+    name:
+      - libreoffice
+      - ffmpeg
+      - unzip
+
+- name: copy nextcloud.conf
+  become: yes
+  ansible.builtin.copy:
+    src: nextcloud.conf
+    dest: /etc/apache2/sites-available
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: enable site
+  become: yes
+  ansible.builtin.shell: a2ensite nextcloud.conf
+
+- name: enable required modules
+  become: yes
+  block:
+    - name: rewrite
+      community.general.apache2_module:
+        state: present
+        name: rewrite
+    - name: headers
+      community.general.apache2_module:
+        state: present
+        name: headers
+    - name: env
+      community.general.apache2_module:
+        state: present
+        name: env
+    - name: dir
+      community.general.apache2_module:
+        state: present
+        name: dir
+    - name: mime
+      community.general.apache2_module:
+        state: present
+        name: mime
+
+- name: extract archive
+  become: yes
+  ansible.builtin.unarchive:
+    remote_src: yes
+    src: https://download.nextcloud.com/server/releases/latest-22.zip
+    dest: /var/www/html/
+    owner: www-data
+    group: www-data
+    creates: /var/www/html/nextcloud/
+
+- name: create database user
+  become: yes
+  community.mysql.mysql_user:
+    login_user: root
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    name: oc_admin
+    password: "{{ admin_user_password }}"
+    state: present
+
+- name: create database
+  become: yes
+  community.mysql.mysql_db:
+    login_user: root
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    name: nextcloud
+    encoding: utf8mb4
+    collation: utf8mb4_general_ci
+    state: present
+
+- name: grant privileges to user
+  become: yes
+  community.mysql.mysql_user:
+    login_user: root
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+    name: oc_admin
+    password: "{{ admin_user_password }}"
+    priv: 'nextcloud.*:ALL'
+    state: present
+
+- name: reboot
+  become: yes
+  reboot:
