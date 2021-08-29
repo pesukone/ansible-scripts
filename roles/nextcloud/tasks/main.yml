@@ -9,9 +9,9 @@
 
 - name: copy nextcloud.conf
   become: yes
-  ansible.builtin.copy:
-    src: nextcloud.conf
-    dest: /etc/apache2/sites-available
+  ansible.builtin.template:
+    src: nextcloud.conf.j2
+    dest: /etc/apache2/sites-available/nextcloud.conf
     owner: root
     group: root
     mode: '0644'
@@ -49,10 +49,10 @@
   ansible.builtin.unarchive:
     remote_src: yes
     src: https://download.nextcloud.com/server/releases/latest-22.zip
-    dest: /var/www/html/
+    dest: /var/www/
     owner: www-data
     group: www-data
-    creates: /var/www/html/nextcloud/
+    creates: /var/www/nextcloud/
 
 - name: create database user
   become: yes

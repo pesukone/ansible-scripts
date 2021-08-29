@@ -56,5 +56,88 @@
   become: yes
   ansible.builtin.service:
     name: homeassistant
-    state: started
+    state: restarted
     enabled: yes
+
+- name: Make homeassistant trust local proxies
+  become: yes
+  become_user: homeassistant
+  ansible.builtin.blockinfile:
+    path: /home/homeassistant/.homeassistant/configuration.yaml
+    block: |
+      http:
+        use_x_forwarded_for: true
+        trusted_proxies:
+          - 127.0.0.1
+          - ::1
+
+- name: Restart homeassistant
+  become: yes
+  ansible.builtin.service:
+    name: homeassistant
+    state: restarted
+
+- name: Enable required apache modules
+  become: yes
+  block:
+    - name: proxy
+      community.general.apache2_module:
+        state: present
+        name: proxy
+    - name: proxy_http
+      community.general.apache2_module:
+        state: present
+        name: proxy_http
+    - name: proxy_ajp
+      community.general.apache2_module:
+        state: present
+        name: proxy_ajp
+    - name: rewrite
+      community.general.apache2_module:
+        state: present
+        name: rewrite
+    - name: deflate
+      community.general.apache2_module:
+        state: present
+        name: deflate
+    - name: headers
+      community.general.apache2_module:
+        state: present
+        name: headers
+    - name: proxy_balancer
+      community.general.apache2_module:
+        state: present
+        name: proxy_balancer
+    - name: proxy_connect
+      community.general.apache2_module:
+        state: present
+        name: proxy_connect
+    - name: proxy_html
+      community.general.apache2_module:
+        state: present
+        name: proxy_html
+
+- name: Configure apache proxy
+  become: yes
+  ansible.builtin.blockinfile:
+    path: /etc/apache2/sites-available/homeassistant-proxy.conf
+    create: yes
+    block: |
+      <VirtualHost *:80>
+        ServerName "homeassistant.{{ server_address }}"
+        ServerAlias "*.homeassistant.{{ server_address }}" homeassistant
+        ProxyPass "/" "http://localhost:8123/"
+        ProxyPassReverse "/" "http://localhost:8123/"
+        ProxyPreserveHost On
+      </VirtualHost>
+
+- name: Enable apache proxy conf
+  become: yes
+  ansible.builtin.command:
+    cmd: a2ensite homeassistant-proxy
+
+- name: Restart apache
+  become: yes
+  ansible.builtin.service:
+    name: apache2
+    state: restarted

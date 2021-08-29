@@ -1,4 +1,4 @@
-- name: install apache
+- name: Install apache
   become: yes
   ansible.builtin.apt:
     update_cache: yes
@@ -6,7 +6,7 @@
       - apache2
       - libapache2-mod-php
 
-- name: start apache
+- name: Start apache
   become: yes
   ansible.builtin.service:
     name: apache2
