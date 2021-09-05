@@ -1,0 +1,38 @@
+- name: Install dependencies
+  become: yes
+  ansible.builtin.apt:
+    name:
+      - build-essential
+      - git
+      - cmake
+
+- name: Clone repository
+  ansible.builtin.git:
+    repo: https://github.com/ptitSeb/box64
+    dest: ~/box64
+
+- name: Make build directory
+  ansible.builtin.file:
+    path: ~/box64/build
+    state: directory
+    mode: '0755'
+
+- name: Run cmake
+  ansible.builtin.shell:
+    chdir: ~/box64/build
+    cmd: cmake .. -DRPI4ARM64=1 -DARM_DYNAREC=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+- name: Run make
+  community.general.make:
+    chdir: ~/box64/build
+    jobs: 4
+
+- name: Run cpack
+  ansible.builtin.shell:
+    chdir: ~/box64/build
+    cmd: cpack
+
+- name: Install the generated debian package
+  become: yes
+  ansible.builtin.apt:
+    deb: /home/{{ ansible_user }}/box64/build/box64-0.1.3_Linux-arm64.deb
