@@ -1,0 +1,19 @@
+---
+- name: Install Airgradient monitoring
+  hosts: debian
+  roles:
+    - role: 'roles/prometheus'
+    - role: 'roles/grafana'
+  tasks:
+    #- name: Copy config file
+    #  become: yes
+    #  ansible.builtin.template:
+    #    src: prometheus.yml.j2
+    #    dest: '/etc/prometheus/prometheus.yml'
+    #    mode: 0755
+
+    - name: Restart Prometheus service
+      become: yes
+      ansible.builtin.service:
+        name: prometheus
+        state: restarted

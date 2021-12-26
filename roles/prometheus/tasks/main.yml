@@ -1,0 +1,6 @@
+- name: Install Prometheus
+  become: yes
+  ansible.builtin.apt:
+    update_cache: yes
+    name:
+      - prometheus

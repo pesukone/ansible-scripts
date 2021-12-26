@@ -1,0 +1,6 @@
+scrape_configs:
+  - job_name: 'airgradient'
+    metrics_path: /metrics
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['http://{{ airgradient_ip }}:9926']
